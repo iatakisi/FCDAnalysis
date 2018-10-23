@@ -7,7 +7,7 @@ cmsrel CMSSW_10_3_0_pre6
 cd CMSSW_10_3_0_pre6/src
 cmsenv
 git cms-init
-git clone ssh://git@github.com/DryRun/FCDAnalysis HCALPFG/FCDAnalysis
+git clone ssh://git@github.com/iatakisi/FCDAnalysis HCALPFG/FCDAnalysis
 scram b -j8
 ```
 
