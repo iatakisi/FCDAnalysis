@@ -15,7 +15,9 @@ Run directions:
 to analays Express Physics PD stored in EOS(local):
 ```
 cd $CMSSW_BASE/src/HCALPFG/FCDAnalysis/test
-put locations of root files into fcdanalysis_cfg.py
+```
+-put locations of root files into fcdanalysis_cfg.py
+```
 cmsRun fcdanalysis_cfg.py 
 ```
 
