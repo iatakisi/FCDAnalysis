@@ -19,7 +19,7 @@ put locations of root files into fcdanalysis_cfg.py
 cmsRun fcdanalysis_cfg.py 
 ```
 
-to analays Zero Bias PD() stored in grid(global):
+to analyze Zero Bias PD stored in the grid(global):
 ```
 voms-proxy-init -voms cms
 cd $CMSSW_BASE/src/HCALPFG/FCDAnalysis/test
