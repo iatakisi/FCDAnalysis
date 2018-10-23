@@ -12,13 +12,22 @@ scram b -j8
 ```
 
 Run directions:
-- Local:
+to analays Express Physics PD stored in EOS(local):
 ```
 cd $CMSSW_BASE/src/HCALPFG/FCDAnalysis/test
+put locations of root files into fcdanalysis_cfg.py
+cmsRun fcdanalysis_cfg.py 
+```
+
+to analays Zero Bias PD() stored in grid(global):
+```
+voms-proxy-init -voms cms
+cd $CMSSW_BASE/src/HCALPFG/FCDAnalysis/test
+put locations of root files into fcdanalysis_cfg.py
 cmsRun fcdanalysis_cfg.py outpuFile=file:test.root processEvents=100 threads=4
 ```
 
-- CRAB:
+- or you can use CRAB:
 ```
 cd $CMSSW_BASE/src/HCALPFG/FCDAnalysis/test
 voms-proxy-init -voms cms
