@@ -89,6 +89,24 @@ void FCDAnalysis::initializeStreamData(FCDAnalysisStreamData* streamData, edm::E
 		streamData->_hist_adc_vs_tdctime[it_eid.rawId()] = new TH2F(hname.c_str(), hname.c_str(), 500, 0., 250., 256, -0.5, 255.5);
 		streamData->_hist_adc_vs_tdctime[it_eid.rawId()]->GetXaxis()->SetTitle("TDCTime [ns]");
 		streamData->_hist_adc_vs_tdctime[it_eid.rawId()]->GetYaxis()->SetTitle("ADC");
+                
+                //definitions of new Histograms
+		hname = "LinearADC_" + std::to_string(it_eid.crateId()) + "-" + std::to_string(it_eid.slot()) + "-" + std::to_string(it_eid.fiberIndex()) + "-" + std::to_string(it_eid.fiberChanId());
+		streamData->_cLinearADC[it_eid.rawId()] = new TH1F(hname.c_str(), hname.c_str(), 384000, 0, 384000);
+		streamData->_cLinearADC[it_eid.rawId()]->GetXaxis()->SetTitle("Linear ADC (fC)");
+
+		hname = "Signal_minus_Ped_" + std::to_string(it_eid.crateId()) + "-" + std::to_string(it_eid.slot()) + "-" + std::to_string(it_eid.fiberIndex()) + "-" + std::to_string(it_eid.fiberChanId());
+		streamData->_cSignal_minus_Ped[it_eid.rawId()] = new TH1F(hname.c_str(), hname.c_str(), 384000, 0, 384000);
+		streamData->_cSignal_minus_Ped[it_eid.rawId()]->GetXaxis()->SetTitle("Linear ADC (fC)");
+
+		hname = "Mean_Signal_Time_Estimation_TS_" + std::to_string(it_eid.crateId()) + "-" + std::to_string(it_eid.slot()) + "-" + std::to_string(it_eid.fiberIndex()) + "-" + std::to_string(it_eid.fiberChanId());
+		streamData->_cMean_Signal_Time_Estimation_TS[it_eid.rawId()] = new TH1F(hname.c_str(), hname.c_str(), 10, 0, 10);
+		streamData->_cMean_Signal_Time_Estimation_TS[it_eid.rawId()]->GetXaxis()->SetTitle("TS");
+
+		hname = "Mean_Signal_Time_Estimation_TDC_" + std::to_string(it_eid.crateId()) + "-" + std::to_string(it_eid.slot()) + "-" + std::to_string(it_eid.fiberIndex()) + "-" + std::to_string(it_eid.fiberChanId());
+		streamData->_cMean_Signal_Time_Estimation_TDC[it_eid.rawId()] = new TH1F(hname.c_str(), hname.c_str(), 1000, 0, 100);
+		streamData->_cMean_Signal_Time_Estimation_TDC[it_eid.rawId()]->GetXaxis()->SetTitle("TDC (ns)");
+                //definitions of new Histograms---
 	}
 
 }
@@ -129,12 +147,35 @@ void FCDAnalysis::analyze(edm::StreamID sid, const edm::Event& event, const edm:
 			streamCache(sid)->_hist_adc_vs_ts.at(eid.rawId())->Fill(i, digi[i].adc());
 			streamCache(sid)->_hist_tdc.at(eid.rawId())->Fill(digi[i].le_tdc());
 			streamCache(sid)->_hist_adc_vs_tdc.at(eid.rawId())->Fill(digi[i].le_tdc(), digi[i].adc());
+                        //iter for new histograms
+                        //streamCache(sid)->buf[i] = digi[i].adc();
+                        streamCache(sid)->buf[i] = streamCache(sid)->adc2fC_QIE10[digi[i].adc()];
+                        streamCache(sid)->_cLinearADC.at(eid.rawId())->Fill( streamCache(sid)->buf[i] );
+                        streamCache(sid)->bufTDC[i] =  digi[i].le_tdc();
+                        //iter for new histograms---
 			if (digi[i].le_tdc() <= 50.) {
 				double tdctime = 25. * i + 0.5 * digi[i].le_tdc();
 				streamCache(sid)->_hist_tdctime.at(eid.rawId())->Fill(tdctime);
 				streamCache(sid)->_hist_adc_vs_tdctime.at(eid.rawId())->Fill(tdctime, digi[i].adc());
 			}
 		}
+		//fill new Histograms
+                streamCache(sid)->pedADC = streamCache(sid)->buf[0] + streamCache(sid)->buf[1];// 0. and 1. TS PED
+                streamCache(sid)->signalADC = streamCache(sid)->buf[2] + streamCache(sid)->buf[3] + streamCache(sid)->buf[4] + streamCache(sid)->buf[5];// >2. TS SignalADC
+
+                streamCache(sid)->meanTime = ((streamCache(sid)->buf[2]-(streamCache(sid)->pedADC/2.))*2.+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))*3.+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.))*4. + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.))*5.);
+                streamCache(sid)->meanTime /= ((streamCache(sid)->buf[2]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.)) + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.)));
+                streamCache(sid)->_cMean_Signal_Time_Estimation_TS.at(eid.rawId())->Fill(streamCache(sid)->meanTime);
+
+                streamCache(sid)->meanTime = ((streamCache(sid)->buf[2]-(streamCache(sid)->pedADC/2.))*streamCache(sid)->bufTDC[2]+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))*streamCache(sid)->bufTDC[3]+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.))*streamCache(sid)->bufTDC[4] + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.))*streamCache(sid)->bufTDC[5]);
+                streamCache(sid)->meanTime /= ((streamCache(sid)->buf[2]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.)) + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.)));
+                streamCache(sid)->_cMean_Signal_Time_Estimation_TDC.at(eid.rawId())->Fill(streamCache(sid)->meanTime);
+
+                streamCache(sid)->_cSignal_minus_Ped.at(eid.rawId())->Fill(streamCache(sid)->signalADC - (streamCache(sid)->pedADC/2.));
+                //_cSignal_minus_Ped[eid]->Fill(pedADC);
+		//fill new Histograms---
+		
+		
 	}
 }
 
@@ -163,5 +204,20 @@ void FCDAnalysis::globalEndRunSummary(edm::Run const& run, edm::EventSetup const
 		for (auto& it : globalData->_hist_tdctime) {
 			it.second->Write();
 		}
+                // Save new Histograms
+                for (auto& it : globalData-> _cMean_Signal_Time_Estimation_TS) {
+			it.second->Write();
+		}
+		for (auto& it : globalData->_cMean_Signal_Time_Estimation_TDC) {
+			it.second->Write();
+		}
+		for (auto& it : globalData->_cSignal_minus_Ped) {
+			it.second->Write();
+		}
+		for (auto& it : globalData->_cLinearADC) {
+			it.second->Write();
+		}
+                // Save new Histograms---
+		
 	});
 }

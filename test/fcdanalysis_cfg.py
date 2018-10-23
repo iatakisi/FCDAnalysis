@@ -24,7 +24,12 @@ options.register('processEvents',
 
 options.register('inputFiles',
                  #"file:/eos/cms/store/data/Run2018D/JetHT/RAW/v1/000/323/778/00000/909E5AC5-D2BA-2743-BD18-FA8920DB89B6.root",
-                 "root://eoscms.cern.ch//eos/cms/store/data/Run2018D/JetHT/RAW/v1/000/323/778/00000/909E5AC5-D2BA-2743-BD18-FA8920DB89B6.root",
+                 #"root://eoscms.cern.ch//store/data/Run2018D/JetHT/RAW/v1/000/323/778/00000/909E5AC5-D2BA-2743-BD18-FA8920DB89B6.root",
+                 #"root://eoscms.cern.ch//store/express/Run2018D/ExpressPhysics/FEVT/Express-v1/000/323/277/00000/146696BA-70A6-C24A-A124-9FD551275D40.root",
+		 "dummyinput",
+		 #"root://cms-xrd-global.cern.ch///store/data/Run2018D/JetHT/RAW/v1/000/323/778/00000/909E5AC5-D2BA-2743-BD18-FA8920DB89B6.root",
+		 #'/store/data/Run2018D/ZeroBias/RAW/v1/000/323/345/00000/952D1F9B-1874-C448-AC71-C21B83FCCA34.root',
+                 #'/store/data/Run2018D/ZeroBias/RAW/v1/000/323/345/00000/9ACA3C0C-F287-044C-B937-F44F3A6E5481.root',
                  VarParsing.VarParsing.multiplicity.list,
                  VarParsing.VarParsing.varType.string,
                  "Input files")
@@ -37,7 +42,7 @@ options.register('inputFiles',
 #                 "Input files")
 #
 options.register('outputFile',
-                 "file:fcdanalysis_out.root", #default value
+                 "file:fcdanalysis_323336.root", #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Output file")
@@ -72,11 +77,18 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.proc
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames  = cms.untracked.vstring(options.inputFiles),
-    #fileNames  = cms.untracked.vstring(
+    #fileNames  = cms.untracked.vstring(options.inputFiles),
+    fileNames  = cms.untracked.vstring(
+    #323336
+    '/store/data/Run2018D/ZeroBias/RAW/v1/000/323/336/00000/A1C42694-F52C-D04E-ACEB-434DAE62A6DA.root',
+    '/store/data/Run2018D/ZeroBias/RAW/v1/000/323/336/00000/CD73C549-4693-1943-AAC5-45B9BE271EDB.root',
+    '/store/data/Run2018D/ZeroBias/RAW/v1/000/323/336/00000/CDF9494D-B0BB-1949-9BC0-0EC7C2F07138.root'
+    #323345
+    #'root://cms-xrd-global.cern.ch///store/data/Run2018D/ZeroBias/RAW/v1/000/323/345/00000/952D1F9B-1874-C448-AC71-C21B83FCCA34.root',
+    #'root://cms-xrd-global.cern.ch///store/data/Run2018D/ZeroBias/RAW/v1/000/323/345/00000/9ACA3C0C-F287-044C-B937-F44F3A6E5481.root'
     #  "file:/home/users/jaehyeok/HCAL/ntupler/files/splashes2018/BeamSplash_run313574_beam1.root",
     #  "file:/home/users/jaehyeok/HCAL/ntupler/files/splashes2018/BeamSplash_run313574_beam2.root"
-    #),
+    ),
     skipEvents = cms.untracked.uint32(options.skipEvents)
     )
 
