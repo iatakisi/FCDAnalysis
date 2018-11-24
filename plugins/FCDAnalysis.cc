@@ -160,10 +160,20 @@ void FCDAnalysis::analyze(edm::StreamID sid, const edm::Event& event, const edm:
 			}
 		}
 		//fill new Histograms
-                streamCache(sid)->pedADC = streamCache(sid)->buf[0] + streamCache(sid)->buf[1];// 0. and 1. TS PED
-                streamCache(sid)->signalADC = streamCache(sid)->buf[2] + streamCache(sid)->buf[3] + streamCache(sid)->buf[4] + streamCache(sid)->buf[5];// >2. TS SignalADC
+                //streamCache(sid)->pedADC = streamCache(sid)->buf[0] + streamCache(sid)->buf[1];// 0. and 1. TS PED pedavarage method
+                //streamCache(sid)->signalADC = streamCache(sid)->buf[2] + streamCache(sid)->buf[3] + streamCache(sid)->buf[4] + streamCache(sid)->buf[5];// >2. TS SignalADC
+		//streamCache(sid)->pedADC = streamCache(sid)->buf[0] ;// 0. TS as PED
+		//streamCache(sid)->signalADC = streamCache(sid)->buf[1] + streamCache(sid)->buf[2] + streamCache(sid)->buf[3] + streamCache(sid)->buf[4] + streamCache(sid)->buf[5];// incase we want to use only TS0 as ped this is our signal
+                if (streamCache(sid)->buf[0] > streamCache(sid)->buf[1]){
+		streamCache(sid)->pedADC = streamCache(sid)->buf[0]*2.;
+		}else{
+		streamCache(sid)->pedADC = streamCache(sid)->buf[1]*2.;
+		} //tight algo... to define ped, it gets higher value from TS0 and TS1  
+		streamCache(sid)->signalADC = streamCache(sid)->buf[2] + streamCache(sid)->buf[3] + streamCache(sid)->buf[4] + streamCache(sid)->buf[5];// tight algo
 
-                streamCache(sid)->meanTime = ((streamCache(sid)->buf[2]-(streamCache(sid)->pedADC/2.))*2.+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))*3.+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.))*4. + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.))*5.);
+		
+		
+		streamCache(sid)->meanTime = ((streamCache(sid)->buf[2]-(streamCache(sid)->pedADC/2.))*2.+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))*3.+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.))*4. + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.))*5.);
                 streamCache(sid)->meanTime /= ((streamCache(sid)->buf[2]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.)) + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.)));
                 streamCache(sid)->_cMean_Signal_Time_Estimation_TS.at(eid.rawId())->Fill(streamCache(sid)->meanTime);
 
@@ -171,7 +181,8 @@ void FCDAnalysis::analyze(edm::StreamID sid, const edm::Event& event, const edm:
                 streamCache(sid)->meanTime /= ((streamCache(sid)->buf[2]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[3]- (streamCache(sid)->pedADC/2.))+ (streamCache(sid)->buf[4]- (streamCache(sid)->pedADC/2.)) + (streamCache(sid)->buf[5]- (streamCache(sid)->pedADC/2.)));
                 streamCache(sid)->_cMean_Signal_Time_Estimation_TDC.at(eid.rawId())->Fill(streamCache(sid)->meanTime);
 
-                streamCache(sid)->_cSignal_minus_Ped.at(eid.rawId())->Fill(streamCache(sid)->signalADC - (streamCache(sid)->pedADC/2.));
+                streamCache(sid)->_cSignal_minus_Ped.at(eid.rawId())->Fill(streamCache(sid)->signalADC - (streamCache(sid)->pedADC*2.));  //
+		//streamCache(sid)->_cSignal_minus_Ped.at(eid.rawId())->Fill(streamCache(sid)->signalADC - (streamCache(sid)->pedADC*5.));  //incase we want to uese TS0 as ped
                 //_cSignal_minus_Ped[eid]->Fill(pedADC);
 		//fill new Histograms---
 		
