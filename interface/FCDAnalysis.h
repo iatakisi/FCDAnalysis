@@ -45,7 +45,9 @@ class FCDAnalysisStreamData {
 public:
 	// Histograms and counters
 	ChannelHistogramMap1D _hist_adc; 
-	ChannelHistogramMap2D _hist_adc_vs_ts; 
+	ChannelHistogramMap2D _hist_adc_vs_ts;
+	ChannelHistogramMap2D _hist_adc_subped_vs_ts;
+	ChannelHistogramMap2D _hist_linearadc_vs_ts;
 	ChannelHistogramMap1D _hist_tdc; 
 	ChannelHistogramMap1D _hist_tdctime; 
 	ChannelHistogramMap2D _hist_adc_vs_tdc; 
@@ -137,6 +139,16 @@ public:
 				it.second->Add(data->_hist_adc_vs_ts.at(it.first));
 			}
 		}
+		for (auto& it : _hist_adc_subped_vs_ts) {
+		  if (data->_hist_adc_subped_vs_ts.find(it.first) != data->_hist_adc_subped_vs_ts.end()) {
+		    it.second->Add(data->_hist_adc_subped_vs_ts.at(it.first));
+		  }
+		}
+		for (auto& it : _hist_linearadc_vs_ts) {
+		  if (data->_hist_linearadc_vs_ts.find(it.first) != data->_hist_linearadc_vs_ts.end()) {
+		    it.second->Add(data->_hist_linearadc_vs_ts.at(it.first));
+		  }
+		}
 		for (auto& it : _hist_tdc) {
 			if (data->_hist_tdc.find(it.first) != data->_hist_tdc.end()) {
 				it.second->Add(data->_hist_tdc.at(it.first));
@@ -187,6 +199,8 @@ public:
 		this->_hist_adc.clear();
 		this->_hist_adc_vs_ts.clear();
 		this->_hist_tdc.clear();
+		this->_hist_adc_subped_vs_ts.clear();
+		this->_hist_linearadc_vs_ts.clear();
 		this->_hist_tdctime.clear();
 		this->_hist_adc_vs_tdc.clear();
 		this->_hist_adc_vs_tdctime.clear();
@@ -236,3 +250,4 @@ public:
 };
 
 #endif
+
